@@ -11,7 +11,7 @@ region=us-west-2
 EOT
 fi
 
-pip install --upgrade pip
+pip install -U pip==24.0
 pip install -r requirements.txt
 pushd web
 yarn install

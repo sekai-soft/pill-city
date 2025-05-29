@@ -18,7 +18,7 @@ RUN python -m venv venv
 ENV PATH="./venv/bin:$PATH"
 COPY requirements.txt .
 COPY requirements.prod.txt .
-RUN python -m pip install --upgrade pip setuptools wheel
+RUN python -m pip install -U pip==24.0 setuptools wheel
 RUN pip install -r requirements.txt
 RUN pip install -r requirements.prod.txt
 

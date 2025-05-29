@@ -1,0 +1,64 @@
+services:
+  web:
+    image: ghcr.io/sekai-soft/pill-city:latest
+    restart: unless-stopped
+    container_name: pill-city
+    env_file:
+      - env
+    depends_on:
+      - mongodb
+      - redis
+  worker:
+    image: ghcr.io/sekai-soft/pill-city:latest
+    restart: unless-stopped
+    entrypoint: /home/app/entrypoint-worker.sh
+    env_file:
+      - env
+    depends_on:
+      - mongodb
+      - redis
+  beat:
+    image: ghcr.io/sekai-soft/pill-city:latest
+    restart: unless-stopped
+    entrypoint: /home/app/entrypoint-beat.sh
+    env_file:
+      - env
+    depends_on:
+      - mongodb
+      - redis
+  mongodb:
+    image: mongo:4.4
+    restart: unless-stopped
+    volumes:
+      - mongodb_data:/data/db
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongo localhost:27017/test --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 10
+    env_file:
+      - env
+  redis:
+    image: redis
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test:
+        - CMD
+        - redis-cli
+        - ping
+      interval: 1s
+      timeout: 3s
+      retries: 30
+  cloudflared:
+    image: cloudflare/cloudflared
+    restart: unless-stopped
+    command: tunnel run pill-city
+    env_file:
+      - env
+
+volumes:
+  mongodb_data:
+  redis_data:

@@ -14,7 +14,7 @@ Pillow==9.4.0
 sentry-sdk[flask]==1.5.1
 redis==3.5.3
 celery[redis]==5.1.2
-git+https://github.com/k-t-corp/linkpreview
+git+https://github.com/sekai-soft/linkpreview
 feedgen==0.9.0
 markupsafe==2.0.1
 flask-swagger-ui==3.36.0
