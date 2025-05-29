@@ -46,6 +46,7 @@ jobs:
           tags: |
             ghcr.io/${{ github.repository }}:latest-amd64
             ghcr.io/${{ github.repository }}:${{ github.sha }}-amd64
+          build-args: 'GIT_COMMIT=${{ github.sha }}'
           push: true
       - name: Export digest
         run: |
@@ -83,6 +84,7 @@ jobs:
           tags: |
             ghcr.io/${{ github.repository }}:latest-arm64
             ghcr.io/${{ github.repository }}:${{ github.sha }}-arm64
+          build-args: 'GIT_COMMIT=${{ github.sha }}'
           push: true
       - name: Export digest
         run: |
