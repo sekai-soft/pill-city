@@ -36,8 +36,6 @@ services:
       interval: 10s
       timeout: 10s
       retries: 10
-    env_file:
-      - env
   redis:
     image: redis
     restart: unless-stopped
