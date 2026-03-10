@@ -1,13 +1,13 @@
 services:
-  # web:
-  #   image: ghcr.io/sekai-soft/pill-city:latest
-  #   restart: unless-stopped
-  #   container_name: pill-city
-  #   env_file:
-  #     - env
-  #   depends_on:
-  #     - mongodb
-  #     - redis
+  web:
+    image: ghcr.io/sekai-soft/pill-city:latest
+    container_name: pill-city
+    restart: unless-stopped
+    # env_file:
+    #   - env
+    depends_on:
+      - mongodb
+      - redis
   # worker:
   #   image: ghcr.io/sekai-soft/pill-city:latest
   #   restart: unless-stopped
@@ -29,6 +29,7 @@ services:
   mongodb:
     image: mongo:8.2
     restart: unless-stopped
+    container_name: mongodb
     volumes:
       - mongodb_data:/data/db
     healthcheck:
@@ -39,6 +40,7 @@ services:
   redis:
     image: redis
     restart: unless-stopped
+    container_name: redis
     volumes:
       - redis_data:/data
     healthcheck:
