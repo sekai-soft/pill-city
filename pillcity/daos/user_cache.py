@@ -1,9 +1,11 @@
-from bson import ObjectId
 from typing import List, Union
+
+from bson import ObjectId
+
 from pillcity.models import User
 from pillcity.utils.profiling import timer
-from .cache import r
 
+from .cache import r
 
 RUserByUserId = "userByUserId"
 RUserByOid = "userByOid"
@@ -23,7 +25,7 @@ def get_in_user_cache_by_user_id(user_id: str) -> Union[User, bool]:
     r_user = r.hget(RUserByUserId, user_id)
     if not r_user:
         return False
-    r_user = r_user.decode('utf-8')
+    r_user = r_user.decode("utf-8")
     return User.from_json(r_user)
 
 
@@ -32,7 +34,7 @@ def get_in_user_cache_by_oid(oid: ObjectId) -> Union[User, bool]:
     r_user = r.hget(RUserByOid, str(oid))
     if not r_user:
         return False
-    r_user = r_user.decode('utf-8')
+    r_user = r_user.decode("utf-8")
     return User.from_json(r_user)
 
 
@@ -45,6 +47,6 @@ def populate_user_cache():
 def get_users_in_user_cache() -> List[User]:
     res = []
     for oid, r_user in r.hgetall(RUserByOid).items():
-        r_user = r_user.decode('utf-8')
+        r_user = r_user.decode("utf-8")
         res.append(User.from_json(r_user))
     return list(sorted(res, key=lambda u: u.id))

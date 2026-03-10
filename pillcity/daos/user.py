@@ -1,24 +1,37 @@
 import os
-from typing import Union, Optional, List
-from mongoengine import NotUniqueError
-from werkzeug.security import generate_password_hash, check_password_hash
-from pillcity.models import User, Media
-from pillcity.utils.profiling import timer
-from pillcity.utils.make_uuid import make_dashless_uuid
-from pillcity.models import NotifyingAction
-from .exceptions import UnauthorizedAccess, NotFound, BadRequest
-from .user_cache import set_in_user_cache, get_users_in_user_cache, get_in_user_cache_by_user_id
-from .notification import create_notification
-from .media import use_media, delete_media
+from typing import List, Optional, Union
 
-AvailableProfilePics = ["pill1.png", "pill2.png", "pill3.png", "pill4.png", "pill5.png", "pill6.png"]
+from mongoengine import NotUniqueError
+from werkzeug.security import check_password_hash, generate_password_hash
+
+from pillcity.models import Media, NotifyingAction, User
+from pillcity.utils.make_uuid import make_dashless_uuid
+from pillcity.utils.profiling import timer
+
+from .exceptions import BadRequest, NotFound, UnauthorizedAccess
+from .media import delete_media, use_media
+from .notification import create_notification
+from .user_cache import (
+    get_in_user_cache_by_user_id,
+    get_users_in_user_cache,
+    set_in_user_cache,
+)
+
+AvailableProfilePics = [
+    "pill1.png",
+    "pill2.png",
+    "pill3.png",
+    "pill4.png",
+    "pill5.png",
+    "pill6.png",
+]
 
 
 def sign_up(
     user_id: str,
     password: str,
     display_name: Optional[str] = None,
-    email: Optional[str] = None
+    email: Optional[str] = None,
 ) -> bool:
     """
     Signs up a user
@@ -38,8 +51,8 @@ def sign_up(
         new_user.email = email
     try:
         new_user.save()
-        if os.getenv('OFFICIAL', None):
-            official_user_id = os.getenv('OFFICIAL')
+        if os.getenv("OFFICIAL", None):
+            official_user_id = os.getenv("OFFICIAL")
             official_user = find_user(official_user_id)
             if official_user:
                 follow(new_user, official_user)
@@ -109,7 +122,9 @@ def search_users(keyword: str) -> List[User]:
     keyword = keyword.lower()
     matched_users = []
     for user in get_users_in_user_cache():
-        if keyword in user.user_id.lower() or (user.display_name and keyword in user.display_name.lower()):
+        if keyword in user.user_id.lower() or (
+            user.display_name and keyword in user.display_name.lower()
+        ):
             matched_users.append(user)
     return matched_users
 
@@ -128,12 +143,12 @@ def follow(self: User, user: User):
     set_in_user_cache(self)
     create_notification(
         self=self,
-        notifying_href='',
-        notifying_summary='',
+        notifying_href="",
+        notifying_summary="",
         notifying_action=NotifyingAction.Follow,
-        notified_href='',
-        notified_summary='',
-        owner=user
+        notified_href="",
+        notified_summary="",
+        owner=user,
     )
 
 
@@ -248,17 +263,17 @@ def get_rss_token(self: User) -> Optional[str]:
     return user.rss_token
 
 
-def get_rss_notifications_url(self: User, types: str = '') -> str:
-    api_domain = os.environ['API_DOMAIN']
-    protocol = 'https'
+def get_rss_notifications_url(self: User, types: str = "") -> str:
+    api_domain = os.environ["API_DOMAIN"]
+    protocol = "https"
     # todo: lol so hack
-    if 'localhost:' in api_domain:
-        protocol = 'http'
+    if "localhost:" in api_domain:
+        protocol = "http"
     # todo: this is duplicate with the actual path in app.py
-    base_url = f'{protocol}://{api_domain}/rss/{self.user_id}/notifications?token={self.rss_token}'
+    base_url = f"{protocol}://{api_domain}/rss/{self.user_id}/notifications?token={self.rss_token}"
     if not types:
         return base_url
-    return base_url + f'&types={types}'
+    return base_url + f"&types={types}"
 
 
 def rotate_rss_token(self: User) -> str:
@@ -270,7 +285,7 @@ def rotate_rss_token(self: User) -> str:
     """
     new_token = make_dashless_uuid()
     if get_user_by_rss_token(new_token):
-        raise Exception('Duplicate RSS token. Please retry.')
+        raise Exception("Duplicate RSS token. Please retry.")
 
     self.rss_token = new_token
     self.save()
@@ -331,8 +346,8 @@ def unblock(self: User, user: User):
 
 
 def find_ghost_user_or_raise() -> User:
-    ghost_user_id = os.environ['GHOST']
+    ghost_user_id = os.environ["GHOST"]
     ghost_user = find_user(ghost_user_id)
     if not ghost_user:
-        raise RuntimeError(f'Ghost user {ghost_user_id} does not exist')
+        raise RuntimeError(f"Ghost user {ghost_user_id} does not exist")
     return ghost_user

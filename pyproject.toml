@@ -1,0 +1,36 @@
+[project]
+name = "pill-city"
+version = "0.1.0"
+description = "A social network reminiscent of Google+ with enhancements"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "bleach<4.0",
+    "boto3>=1.42.64",
+    "celery[redis]==5.1.2",
+    "colorthief==0.2.1",
+    "cryptography==38.0.4",
+    "emoji==1.4.2",
+    "fakeredis==1.6.1",
+    "feedgen==0.9.0",
+    "flask==1.1.4",
+    "flask-cors==3.0.10",
+    "flask-jwt-extended==4.2.3",
+    "flask-restful==0.3.9",
+    "flask-swagger-ui==3.36.0",
+    "freezegun==1.1.0",
+    "linkpreview",
+    "markupsafe==2.0.1",
+    "mongoengine==0.23.1",
+    "mongomock==3.23.0",
+    "nose==1.3.7",
+    "pillow>=12.1.1",
+    "redis==3.5.3",
+    "requests==2.26.0",
+    "requests-toolbelt==0.9.1",
+    "sentry-sdk[flask]==1.5.1",
+    "urlextract==1.6.0",
+]
+
+[tool.uv.sources]
+linkpreview = { git = "https://github.com/sekai-soft/linkpreview" }
