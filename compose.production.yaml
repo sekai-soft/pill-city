@@ -32,6 +32,7 @@ services:
     container_name: mongodb
     volumes:
       - mongodb_data:/data/db
+    ports: "27017:27017"
     healthcheck:
       test: echo 'db.runCommand("ping").ok' | mongo localhost:27017/test --quiet
       interval: 10s
@@ -43,6 +44,7 @@ services:
     container_name: redis
     volumes:
       - redis_data:/data
+    ports: "6379:6379"
     healthcheck:
       test:
         - CMD
