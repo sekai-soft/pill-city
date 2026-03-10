@@ -65,7 +65,7 @@ services:
       - TS_EXTRA_ARGS=--advertise-tags=tag:server
       - TS_STATE_DIR=/var/lib/tailscale
     env_file:
-      - /home/nixos/ts-authkey-env
+      - /home/nixos/env-tailscale
     volumes:
       - resources-ts:/var/lib/tailscale
       - /dev/net/tun:/dev/net/tun
