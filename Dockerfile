@@ -2,7 +2,7 @@
 # ref https://pythonspeed.com/articles/multi-stage-docker-python/
 
 # builder outputs a virtualenv with installed dependencies
-FROM python:3.11-slim-buster AS builder
+FROM python:3.11-slim AS builder
 
 # makes sure system is up-to-date
 RUN apt-get update
@@ -23,7 +23,7 @@ RUN pip install -r requirements.txt
 RUN pip install -r requirements.prod.txt
 
 # runner intakes the builder's virtualenv, does various things and define an entrypoint
-FROM python:3.11-slim-buster AS runner
+FROM python:3.11-slim AS runner
 ARG GIT_COMMIT
 RUN test -n "$GIT_COMMIT"
 ENV GIT_COMMIT=$GIT_COMMIT
