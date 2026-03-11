@@ -1,53 +1,42 @@
-# ref https://ep2020.europython.eu/media/conference/slides/CeKGczx-best-practices-for-production-ready-docker-packaging.pdf
-# ref https://pythonspeed.com/articles/multi-stage-docker-python/
+# https://github.com/astral-sh/uv-docker-example/blob/main/multistage.Dockerfile
 
-# builder outputs a virtualenv with installed dependencies
-FROM python:3.11-slim AS builder
+# An example using multi-stage image builds to create a final image without uv.
 
-# makes sure system is up-to-date
-RUN apt-get update
-RUN apt-get install -y --no-install-recommends build-essential git
+# First, build the application in the `/app` directory.
+FROM ghcr.io/astral-sh/uv:python3.13-bookworm-slim AS builder
 
-# use regular user
-RUN useradd --create-home app
-USER app
-WORKDIR /home/app
+ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy
 
-# creates a venv and install dependencies
-RUN python -m venv venv
-ENV PATH="./venv/bin:$PATH"
-COPY requirements.txt .
-COPY requirements.prod.txt .
-RUN python -m pip install -U pip==24.0 setuptools wheel
-RUN pip install -r requirements.txt
-RUN pip install -r requirements.prod.txt
+WORKDIR /app
 
-# runner intakes the builder's virtualenv, does various things and define an entrypoint
-FROM python:3.11-slim AS runner
+RUN --mount=type=cache,target=/root/.cache/uv \
+    --mount=type=bind,source=uv.lock,target=uv.lock \
+    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+    uv sync --frozen --no-install-project --no-dev
+
+ADD . /app
+
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --no-dev
+
+# Install gunicorn in the virtualenv
+RUN uv pip install gunicorn
+
+# Then, use a final image without uv
+FROM python:3.13-slim-bookworm
+# It is important to use the image that matches the builder, as the path to the
+# Python executable must be the same, e.g., using `python:3.11-slim-bookworm`
+# will fail.
 ARG GIT_COMMIT
 RUN test -n "$GIT_COMMIT"
 ENV GIT_COMMIT=$GIT_COMMIT
 
-# use regular user
-RUN useradd --create-home app
-USER app
-WORKDIR /home/app
+# Copy the application from the builder
+COPY --from=builder --chown=app:app /app /app
 
-# intakes the virtualenv from builder
-COPY --from=builder /home/app/venv ./venv
+# Place executables in the environment at the front of the path
+ENV PATH="/app/.venv/bin:$PATH"
 
-# copy in only neccessary files
-COPY pillcity/ /home/app/pillcity
-COPY app.py .
-COPY release.py .
-COPY entrypoint-worker.sh .
-COPY entrypoint-release.sh .
-COPY entrypoint-beat.sh .
-COPY swagger.yaml .
-COPY uwsgi.ini .
+WORKDIR /app
 
-# pre-compile bytecode and enable PYTHONFAULTHANDLER (catches error in c)
-ENV PATH="./venv/bin:$PATH"
-ENV PYTHONFAULTHANDLER=1
-EXPOSE 5000
-ENTRYPOINT ["/home/app/venv/bin/uwsgi", "--ini", "uwsgi.ini"]
+CMD ["bash", "-c", "PORT=\"${PORT:=5000}\" && gunicorn app:app --workers 4 --bind 0.0.0.0:${PORT}"]

@@ -1,3 +1,3 @@
-web: ./scripts/web.sh
-worker: ./scripts/worker.sh
-beat: ./scripts/beat.sh
+web: uv run ./scripts/web.sh
+worker: uv run ./scripts/worker.sh
+beat: uv run ./scripts/beat.sh

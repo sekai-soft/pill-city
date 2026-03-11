@@ -3,6 +3,9 @@ services:
     image: ghcr.io/sekai-soft/pill-city:latest
     container_name: pill-city
     restart: unless-stopped
+    environments:
+      MONGODB_URI: mongodb://pill-city-resources:27017/db
+      REDIS_URL: redis://pill-city-resources:6379
     # env_file:
     #   - env
     depends_on:

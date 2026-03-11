@@ -439,11 +439,15 @@ wheels = [
 
 [[package]]
 name = "linkpreview"
-version = "0.2.0"
-source = { git = "https://github.com/sekai-soft/linkpreview#97624ca734feb9eee715221cf99e05c57f513f75" }
+version = "0.12.1"
+source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "beautifulsoup4" },
     { name = "requests" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/66/54/e538987c8ce1e8585a276ecf018ed8eb958eb17649e893d04bde235c7ccf/linkpreview-0.12.1.tar.gz", hash = "sha256:4f3ec342a848d23dbe5c953daa574c4096a98167b4f8b41e57734a8e85b413e4", size = 15417, upload-time = "2025-08-15T17:59:25Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/fd/bd/a973d4189aa3561a6abdd4e02971cd6a50b6ddb35eb3eec58f557535b1a6/linkpreview-0.12.1-py3-none-any.whl", hash = "sha256:5343dc7475592fb7a6dd12ef13a8ea7cc4983641b43a465d3472695e6f3dd92e", size = 21789, upload-time = "2025-08-15T17:59:23.774Z" },
 ]
 
 [[package]]
@@ -605,7 +609,7 @@ requires-dist = [
     { name = "flask-restful", specifier = "==0.3.9" },
     { name = "flask-swagger-ui", specifier = "==3.36.0" },
     { name = "freezegun", specifier = "==1.1.0" },
-    { name = "linkpreview", git = "https://github.com/sekai-soft/linkpreview" },
+    { name = "linkpreview", specifier = ">=0.12.1" },
     { name = "markupsafe", specifier = "==2.0.1" },
     { name = "mongoengine", specifier = "==0.23.1" },
     { name = "mongomock", specifier = "==3.23.0" },

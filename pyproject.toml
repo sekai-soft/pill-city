@@ -19,7 +19,7 @@ dependencies = [
     "flask-restful==0.3.9",
     "flask-swagger-ui==3.36.0",
     "freezegun==1.1.0",
-    "linkpreview",
+    "linkpreview>=0.12.1",
     "markupsafe==2.0.1",
     "mongoengine==0.23.1",
     "mongomock==3.23.0",
@@ -31,6 +31,3 @@ dependencies = [
     "sentry-sdk[flask]==1.5.1",
     "urlextract==1.6.0",
 ]
-
-[tool.uv.sources]
-linkpreview = { git = "https://github.com/sekai-soft/linkpreview" }
