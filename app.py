@@ -9,7 +9,7 @@ load_dotenv()  # reads variables from a .env file and sets them in os.environ
 
 import sentry_sdk
 from dotenv import load_dotenv
-from flask import Flask, jsonify, request, send_file
+from flask import Flask, Response, jsonify, request, stream_with_context
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager, create_access_token
 from flask_restful import Api
@@ -29,7 +29,6 @@ from pillcity.resources.circles import Circle, CircleMember, CircleName, Circles
 from pillcity.resources.comments import Comment, Comments, NestedComment, NestedComments
 from pillcity.resources.followings import Following
 from pillcity.resources.invitations_codes import (
-    ClearMediaUrlCache,
     InvitationCode,
     InvitationCodes,
 )
@@ -66,6 +65,7 @@ from pillcity.resources.users import (
     Users,
 )
 from pillcity.utils.now import now_seconds
+from pillcity.utils.s3 import get_s3_client
 
 logging.basicConfig(level=logging.INFO)
 
@@ -216,7 +216,22 @@ def _rss_notifications(user_id: str):
     return xml, 200, {"Content-Type": "application/atom+xml; charset=utf-8"}
 
 
-# Core API routes
+# Media Proxy
+@app.route("/p/<path:object_name>")
+def _media_proxy(object_name: str):
+    s3_client, s3_bucket_name = get_s3_client()
+
+    return Response(
+        stream_with_context(
+            s3_client.get_object(Bucket=s3_bucket_name, Key=object_name)[
+                "Body"
+            ].iter_chunks()
+        ),
+        mimetype="application/octet-stream",
+    )
+
+
+# API routes
 errors = {
     "UnauthorizedAccess": {
         "status": 401,
@@ -282,7 +297,6 @@ api.add_resource(Notifications, "/api/notifications")
 
 api.add_resource(InvitationCodes, "/api/invitationCodes")
 api.add_resource(InvitationCode, "/api/invitationCode")
-api.add_resource(ClearMediaUrlCache, "/api/clearMediaUrlCache")
 
 api.add_resource(LinkPreview, "/api/linkPreview")
 
@@ -296,6 +310,7 @@ api.add_resource(MediaSetName, "/api/mediaSet/<string:media_set_id>/name")
 api.add_resource(MediaSetPublic, "/api/mediaSet/<string:media_set_id>/public")
 api.add_resource(MediaSetMedia, "/api/mediaSet/<string:media_set_id>/media")
 api.add_resource(MediaSet, "/api/mediaSet/<string:media_set_id>")
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)

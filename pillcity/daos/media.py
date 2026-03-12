@@ -1,8 +1,10 @@
 from typing import List, Optional
+
 from pillcity.models import Media, User
-from pillcity.utils.now import now_seconds
 from pillcity.tasks.process_image import process_image
-from .s3 import upload_to_s3, delete_from_s3
+from pillcity.utils.now import now_seconds
+
+from .s3 import delete_from_s3, upload_to_s3
 
 
 def get_media(object_name: str) -> Media:
@@ -19,7 +21,10 @@ def get_media_page(owner: User, page_number: int, page_count: int) -> List[Media
     Get a page of media items owned by a user, reverse chronologically ordered
     """
     return list(
-        Media.objects(owner=owner).order_by('-created_at', '+id').skip(page_number * page_count).limit(page_count)
+        Media.objects(owner=owner)
+        .order_by("-created_at", "+id")
+        .skip(page_number * page_count)
+        .limit(page_count)
     )
 
 

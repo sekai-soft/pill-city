@@ -9,7 +9,6 @@ dependencies = [
     "boto3>=1.42.64",
     "celery[redis]>=5.6.2",
     "colorthief==0.2.1",
-    "cryptography==38.0.4",
     "emoji==1.4.2",
     "fakeredis>=2.34.1",
     "feedgen==0.9.0",
