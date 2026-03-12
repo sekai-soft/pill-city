@@ -13,24 +13,6 @@ A social network reminiscent of Google+ with enhancements
    cp ./web/.env.development ./web/.env.development.local
    ```
 
-2. Setup AWS for development
-
-* Obtain an AWS account and setup admin credentials locally
-  * Go to [Add user UI on IAM Dashboard](https://us-east-1.console.aws.amazon.com/iam/home#/users$new?step=details)
-  * Enter `PillCityDevTerraform` for `User name`
-  * Select `Programmatic access` in `Access type`
-  * Click `Next: Permissions`
-  * Select `Attach existing policies directly` in `Set permissions`
-  * Search for `AdministratorAccess` and select it
-  * Click `Next: Tags`
-  * Click `Next: Review`
-  * Click `Create user`
-  * Copy the `Access key ID` and `Secret access key` to your clipboard
-  * Edit the file `~/.aws/credentials` and fill in the `<Access key ID>` and `<Secret access key>`
-  * Run `make dev-aws-setup` to provision AWS resources and add related environment variables
-  * **Save the resulting `pill-city-dev-env.zip` (right click the file in VSCode and click "Download") to your host machine because there is currently no way to persist the generated files from above steps**
-
-
 ## Run
 ``` shell
 overmind s
@@ -54,14 +36,6 @@ See [README for web](./web/README.md)
 ``` shell
 make test
 ```
-
-
-## Run API database schema migration
-Make sure you have the API running
-``` shell
-make dev-release
-```
-
 
 ## Security
 Please send security findings to [`admin@ktachibana.party`](mailto:admin@ktachibana.party).
