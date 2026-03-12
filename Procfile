@@ -1,3 +1,4 @@
-web: uv run ./scripts/web.sh
-worker: uv run ./scripts/worker.sh
-beat: uv run ./scripts/beat.sh
+api: FLASK_ENVIRONMENT=development uv run python app.py
+worker: uv run celery -A pillcity.tasks worker --loglevel=INFO
+beat: uv run celery -A pillcity.tasks beat --loglevel=DEBUG --max-interval 30
+web: cd web && npm run start

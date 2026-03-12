@@ -182,6 +182,5 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-data
 .env
-pill-city-dev-env.zip
+celerybeat*

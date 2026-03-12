@@ -1,23 +1,17 @@
 import React from "react";
-import "./HomePage.css"
+import "./HomePage.css";
 
 const HomePage = (props) => {
   return (
     <div className="home-page-wrapper">
       <div className="home-page-info-wrapper">
-        <div className="welcome">
-          Welcome back to
-        </div>
-        <div className="title h1">
-          Pill City
-        </div>
+        <div className="title">Welcome</div>
+        <div className="subtitle">It's still the 2010s...</div>
       </div>
 
-      <div className="home-page-form-wrapper">
-        {props.formElement}
-      </div>
+      <div className="home-page-form-wrapper">{props.formElement}</div>
     </div>
-  )
-}
+  );
+};
 
-export default HomePage
+export default HomePage;

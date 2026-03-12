@@ -3,12 +3,16 @@ import os
 import re
 from os import urandom
 
+from dotenv import load_dotenv
+
+load_dotenv()  # reads variables from a .env file and sets them in os.environ
+
 import sentry_sdk
+from dotenv import load_dotenv
 from flask import Flask, jsonify, request, send_file
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager, create_access_token
 from flask_restful import Api
-from flask_swagger_ui import get_swaggerui_blueprint
 from mongoengine import connect
 from sentry_sdk.integrations.flask import FlaskIntegration
 
@@ -44,7 +48,6 @@ from pillcity.resources.notifications import (
     NotificationsAllRead,
 )
 from pillcity.resources.password_reset import ForgetPassword, ResetPassword
-from pillcity.resources.plugins import Plugins
 from pillcity.resources.poll import Vote
 from pillcity.resources.posts import Home, Post, PostMedia, Posts, Profile
 from pillcity.resources.reactions import Reaction, Reactions
@@ -83,16 +86,6 @@ app = Flask(__name__)
 app.secret_key = urandom(24)
 max_mb_per_media = 40
 app.config["MAX_CONTENT_LENGTH"] = max_mb_per_media * 1024 * 1024
-
-
-# OpenAPI/Swagger
-@app.route("/docs/swagger.yaml")
-def _docs_swagger_yaml():
-    return send_file("swagger.yaml")
-
-
-swagger_ui_blueprint = get_swaggerui_blueprint("/docs", "swagger.yaml")
-app.register_blueprint(swagger_ui_blueprint)
 app.config["BUNDLE_ERRORS"] = True
 
 # Database & Caches
@@ -303,24 +296,6 @@ api.add_resource(MediaSetName, "/api/mediaSet/<string:media_set_id>/name")
 api.add_resource(MediaSetPublic, "/api/mediaSet/<string:media_set_id>/public")
 api.add_resource(MediaSetMedia, "/api/mediaSet/<string:media_set_id>/media")
 api.add_resource(MediaSet, "/api/mediaSet/<string:media_set_id>")
-
-api.add_resource(Plugins, "/api/plugins")
-
-# Plugins: init and register blueprints
-from pillcity.plugins import get_plugins  # nopep8
-
-for name, plugin in get_plugins().items():
-    plugin.init()
-
-    bp = plugin.flask_blueprint()
-    if bp:
-        app.register_blueprint(bp, url_prefix=f"/api/plugin/{name}")
-
-
-@app.route("/api/availablePlugins")
-def _available_plugins():
-    return jsonify(list(get_plugins().keys()))
-
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
