@@ -6,29 +6,36 @@ services:
     environment:
       MONGODB_URI: mongodb://pill-city-resources:27017/db
       REDIS_URL: redis://pill-city-resources:6379
-    # env_file:
-    #   - env
+      API_DOMAIN: "api.pill.city"
+      WEB_DOMAIN: "pill.city"
+      JWT_ACCESS_TOKEN_EXPIRES: "1209600"
+      OPEN_REGISTRATION: "false"
+      ADMINS: "kt"
+      OFFICIAL: "official"
+      GHOST: "ghost"
+    env_file:
+      - env
     depends_on:
       - mongodb
       - redis
-  # worker:
-  #   image: ghcr.io/sekai-soft/pill-city:latest
-  #   restart: unless-stopped
-  #   entrypoint: /home/app/entrypoint-worker.sh
-  #   env_file:
-  #     - env
-  #   depends_on:
-  #     - mongodb
-  #     - redis
-  # beat:
-  #   image: ghcr.io/sekai-soft/pill-city:latest
-  #   restart: unless-stopped
-  #   entrypoint: /home/app/entrypoint-beat.sh
-  #   env_file:
-  #     - env
-  #   depends_on:
-  #     - mongodb
-  #     - redis
+  worker:
+    image: ghcr.io/sekai-soft/pill-city:latest
+    restart: unless-stopped
+    entrypoint: /home/app/entrypoint-worker.sh
+    env_file:
+      - env
+    depends_on:
+      - mongodb
+      - redis
+  beat:
+    image: ghcr.io/sekai-soft/pill-city:latest
+    restart: unless-stopped
+    entrypoint: /home/app/entrypoint-beat.sh
+    env_file:
+      - env
+    depends_on:
+      - mongodb
+      - redis
   mongodb:
     image: mongo:8.2
     restart: unless-stopped
