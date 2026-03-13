@@ -1,8 +1,5 @@
 services:
-  web:
-    image: ghcr.io/sekai-soft/pill-city:latest
-    container_name: pill-city
-    restart: unless-stopped
+  .env:
     environment:
       MONGODB_URI: mongodb://pill-city-resources:27017/db
       REDIS_URL: redis://pill-city-resources:6379
@@ -15,27 +12,32 @@ services:
       GHOST: "ghost"
     env_file:
       - env
+
+  pill-city:
+    image: ghcr.io/sekai-soft/pill-city:latest
+    container_name: pill-city
+    restart: unless-stopped
+    extends: .env
     depends_on:
       - mongodb
       - redis
   worker:
     image: ghcr.io/sekai-soft/pill-city:latest
     restart: unless-stopped
-    entrypoint: /home/app/entrypoint-worker.sh
-    env_file:
-      - env
+    extends: .env
+    entrypoint: ["celery", "-A", "pillcity.tasks", "worker", "--loglevel=INFO"]
     depends_on:
       - mongodb
       - redis
   beat:
     image: ghcr.io/sekai-soft/pill-city:latest
     restart: unless-stopped
-    entrypoint: /home/app/entrypoint-beat.sh
-    env_file:
-      - env
+    extends: .env
+    entrypoint: ["celery", "-A", "pillcity.tasks", "beat", "--loglevel=DEBUG", "--max-interval", "30"]
     depends_on:
       - mongodb
       - redis
+
   mongodb:
     image: mongo:8.2
     restart: unless-stopped
