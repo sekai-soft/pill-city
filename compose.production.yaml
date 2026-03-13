@@ -13,6 +13,7 @@ services:
       GHOST: "ghost"
     env_file:
       - env
+    profiles: ["ignore"]
 
   pill-city:
     extends: .base
