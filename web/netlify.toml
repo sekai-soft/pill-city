@@ -1,3 +1,12 @@
+[build]
+  base = "web/"
+  publish = "web/build"
+  command = "npm run build"
+
+[build.environment]
+  NPM_FLAGS = "--legacy-peer-deps"
+  REACT_APP_API_ENDPOINT = "https://api.pill.city/api"
+
 [[redirects]]
 from = "/api"
 to = "https://api.pill.city/docs"
