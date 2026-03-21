@@ -39,4 +39,4 @@ ENV PATH="/app/.venv/bin:$PATH"
 
 WORKDIR /app
 
-CMD ["bash", "-c", "PORT=\"${PORT:=5000}\" && gunicorn app:app --workers 4 --bind 0.0.0.0:${PORT}"]
+CMD ["gunicorn", "app:app", "--workers", "4", "--bind", "0.0.0.0:5000"]

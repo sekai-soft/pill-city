@@ -1,26 +1,10 @@
 services:
-  .base:
-    image: ghcr.io/sekai-soft/pill-city:latest
-    environment:
-      MONGODB_URI: mongodb://pill-city-resources:27017/db
-      REDIS_URL: redis://pill-city-resources:6379
-      API_DOMAIN: "api.pill.city"
-      WEB_DOMAIN: "pill.city"
-      JWT_ACCESS_TOKEN_EXPIRES: "1209600"
-      OPEN_REGISTRATION: "false"
-      ADMINS: "kt"
-      OFFICIAL: "official"
-      GHOST: "ghost"
-    env_file:
-      - env
-    profiles: ["ignore"]
-
   pill-city:
-    extends: .base
+    image: ghcr.io/sekai-soft/pill-city:latest
     container_name: pill-city
     restart: unless-stopped
-    environment:
-      PORT: "80"
+    env_file:
+      - env
     depends_on:
       - mongodb
       - redis
@@ -46,16 +30,20 @@ services:
       - com.centurylinklabs.watchtower.enable=true
 
   worker:
-    extends: .base
+    image: ghcr.io/sekai-soft/pill-city:latest
     restart: unless-stopped
     entrypoint: ["celery", "-A", "pillcity.tasks", "worker", "--loglevel=INFO"]
+    env_file:
+      - env
     depends_on:
       - mongodb
       - redis
   beat:
-    extends: .base
+    image: ghcr.io/sekai-soft/pill-city:latest
     restart: unless-stopped
     entrypoint: ["celery", "-A", "pillcity.tasks", "beat", "--loglevel=DEBUG", "--max-interval", "30"]
+    env_file:
+      - env
     depends_on:
       - mongodb
       - redis
