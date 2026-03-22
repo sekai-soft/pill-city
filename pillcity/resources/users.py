@@ -62,7 +62,7 @@ class Me(Resource):
 my_avatar_parser = reqparse.RequestParser()
 my_avatar_parser.add_argument('file', type=werkzeug.datastructures.FileStorage, location='files', required=True)
 # use str 1 as True to avoid form data boolean messiness
-my_avatar_parser.add_argument('update_post', type=str, required=True)
+my_avatar_parser.add_argument('update_post', type=str, required=True, location='form')
 
 
 class MyAvatar(Resource):
