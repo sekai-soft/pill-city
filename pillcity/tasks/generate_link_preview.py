@@ -6,6 +6,7 @@ from mongoengine import connect, disconnect
 from pillcity.models import LinkPreview, LinkPreviewState
 from .celery import app, logger
 
+# Twitter
 twitter_domains = [
     "twitter.com",
     "www.twitter.com",
@@ -26,8 +27,8 @@ def _is_twitter(url: str) -> bool:
 def _get_nitter_url(url: str) -> str:
     parsed_url = urllib.parse.urlparse(url)
     parsed_url = parsed_url._replace(netloc=os.environ['NITTER_HOST'])
-    nitter_https = os.environ['NITTER_HTTPS'] == 'true'
-    parsed_url = parsed_url._replace(scheme='https' if nitter_https else 'http')
+    https = os.environ['NITTER_HTTPS'] == 'true'
+    parsed_url = parsed_url._replace(scheme='https' if https else 'http')
     return parsed_url.geturl()
 
 
@@ -45,6 +46,36 @@ def _get_twitter_media_cdn_url(nitter_url: str) -> str:
     return "https://pbs.twimg.com/" + suffix
 
 
+# YouTube
+youtube_domains = [
+    "youtu.be",
+    "m.youtube.com",
+    "youtube.com",
+    "www.youtube.com",
+]
+
+
+def _is_youtube(url: str) -> bool:
+    parsed_url = urllib.parse.urlparse(url)
+    if parsed_url.netloc in youtube_domains:
+        return True
+    return False
+
+
+def _get_invidious_url(url: str) -> str:
+    parsed_url = urllib.parse.urlparse(url)
+    parsed_url = parsed_url._replace(netloc=os.environ['INVIDIOUS_HOST'])
+    https = os.environ['INVIDIOUS_HTTPS'] == 'true'
+    parsed_url = parsed_url._replace(scheme='https' if https else 'http')
+    return parsed_url.geturl()
+
+
+def _get_youtube_thumbnail_cdn_url(invidious_url: str) -> str:
+    parsed_url = urllib.parse.urlparse(invidious_url)
+    video_id = urllib.parse.parse_qs(parsed_url.query)['v'][0]
+    return f"https://i.ytimg.com/vi/{video_id}/hqdefault.jpg"
+
+
 @app.task()
 def generate_link_preview(url: str):
     connect(host=os.environ['MONGODB_URI'])
@@ -53,9 +84,11 @@ def generate_link_preview(url: str):
     try:
         processed_url = url
         is_twitter = _is_twitter(url)
-
         if is_twitter:
             processed_url = _get_nitter_url(url)
+        is_youtube = _is_youtube(url)
+        if is_youtube:
+            processed_url = _get_invidious_url(url)
 
         preview = linkpreview.link_preview(processed_url)
 
@@ -70,6 +103,9 @@ def generate_link_preview(url: str):
                     absolute_image = None
                 else:
                     absolute_image = _get_twitter_media_cdn_url(absolute_image)
+            
+            if is_youtube:
+                absolute_image = _get_youtube_thumbnail_cdn_url(processed_url)
 
             if absolute_image:
                 link_preview.image_urls = [absolute_image]
