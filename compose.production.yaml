@@ -13,6 +13,7 @@ services:
       - com.centurylinklabs.watchtower.enable=true
   pill-city-ts:
     image: tailscale/tailscale:latest
+    container_name: pill-city-ts
     restart: unless-stopped
     hostname: pill-city
     environment:
@@ -31,6 +32,7 @@ services:
 
   worker:
     image: ghcr.io/sekai-soft/pill-city:latest
+    container_name: pill-city-worker
     restart: unless-stopped
     entrypoint: ["celery", "-A", "pillcity.tasks", "worker", "--loglevel=INFO"]
     env_file:
@@ -40,6 +42,7 @@ services:
       - redis
   beat:
     image: ghcr.io/sekai-soft/pill-city:latest
+    container_name: pill-city-beat
     restart: unless-stopped
     entrypoint: ["celery", "-A", "pillcity.tasks", "beat", "--loglevel=DEBUG", "--max-interval", "30"]
     env_file:
@@ -51,7 +54,7 @@ services:
   mongodb:
     image: mongo:8.2
     restart: unless-stopped
-    container_name: mongodb
+    container_name: pill-city-mongodb
     volumes:
       - mongodb_data:/data/db
     healthcheck:
@@ -65,7 +68,7 @@ services:
   redis:
     image: redis
     restart: unless-stopped
-    container_name: redis
+    container_name: pill-city-redis
     volumes:
       - redis_data:/data
     healthcheck:
@@ -81,6 +84,7 @@ services:
       - com.centurylinklabs.watchtower.enable=true
   resources-ts:
     image: tailscale/tailscale:latest
+    container_name: pill-city-resources
     restart: unless-stopped
     hostname: pill-city-resources
     environment:
