@@ -6,8 +6,12 @@ services:
     env_file:
       - env
     depends_on:
-      - mongodb
-      - redis
+      mongodb:
+        condition: service_started
+      redis:
+        condition: service_started
+      pill-city-ts:
+        condition: service_healthy
     network_mode: service:pill-city-ts
     labels:
       - com.centurylinklabs.watchtower.enable=true
@@ -16,9 +20,25 @@ services:
     container_name: pill-city-ts
     restart: unless-stopped
     hostname: pill-city
+    command:
+      - /bin/sh
+      - -c
+      - |
+        echo "[ts] waiting for tailscale control-plane reachability..."
+        until nc -z -w 2 api.tailscale.com 443 >/dev/null 2>&1 && nc -z -w 2 controlplane.tailscale.com 443 >/dev/null 2>&1; do
+          sleep 2
+        done
+        echo "[ts] control-plane reachable, starting containerboot"
+        exec /usr/local/bin/containerboot
     environment:
       - TS_EXTRA_ARGS=--advertise-tags=tag:server
       - TS_STATE_DIR=/var/lib/tailscale
+    healthcheck:
+      test: ["CMD-SHELL", "tailscale status --json | grep -Eq '\"BackendState\": *\"Running\"'"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 5s
     env_file:
       - /home/nixos/env-tailscale
     volumes:
@@ -62,6 +82,9 @@ services:
       interval: 10s
       timeout: 10s
       retries: 10
+    depends_on:
+      resources-ts:
+        condition: service_healthy
     network_mode: service:resources-ts
     labels:
       - com.centurylinklabs.watchtower.enable=true
@@ -79,6 +102,9 @@ services:
       interval: 1s
       timeout: 3s
       retries: 30
+    depends_on:
+      resources-ts:
+        condition: service_healthy
     network_mode: service:resources-ts
     labels:
       - com.centurylinklabs.watchtower.enable=true
@@ -87,9 +113,25 @@ services:
     container_name: pill-city-resources
     restart: unless-stopped
     hostname: pill-city-resources
+    command:
+      - /bin/sh
+      - -c
+      - |
+        echo "[ts] waiting for tailscale control-plane reachability..."
+        until nc -z -w 2 api.tailscale.com 443 >/dev/null 2>&1 && nc -z -w 2 controlplane.tailscale.com 443 >/dev/null 2>&1; do
+          sleep 2
+        done
+        echo "[ts] control-plane reachable, starting containerboot"
+        exec /usr/local/bin/containerboot
     environment:
       - TS_EXTRA_ARGS=--advertise-tags=tag:server
       - TS_STATE_DIR=/var/lib/tailscale
+    healthcheck:
+      test: ["CMD-SHELL", "tailscale status --json | grep -Eq '\"BackendState\": *\"Running\"'"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 5s
     env_file:
       - /home/nixos/env-tailscale
     volumes:
