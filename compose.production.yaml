@@ -40,7 +40,7 @@ services:
       retries: 20
       start_period: 5s
     env_file:
-      - /home/nixos/env-tailscale
+      - $HOME/env-tailscale
     volumes:
       - pill-city-ts:/var/lib/tailscale
       - /dev/net/tun:/dev/net/tun
@@ -82,6 +82,25 @@ services:
       interval: 10s
       timeout: 10s
       retries: 10
+    depends_on:
+      resources-ts:
+        condition: service_healthy
+    network_mode: service:resources-ts
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+  mongodb-backup:
+    image: ternandsparrow/mongodb-backup-s3:1.2.2
+    restart: unless-stopped
+    container_name: pill-city-mongodb-backup
+    env_file:
+      - ./env-backup
+    environment:
+      - MONGODB_HOST=pill-city-resources
+      - MONGODB_PORT=27017
+      - MONGODB_USER=admin
+      - MONGODB_PASS=
+      - RETAIN_COUNT=14
+      - DISABLE_CRON=true
     depends_on:
       resources-ts:
         condition: service_healthy
@@ -133,7 +152,7 @@ services:
       retries: 20
       start_period: 5s
     env_file:
-      - /home/nixos/env-tailscale
+      - $HOME/env-tailscale
     volumes:
       - resources-ts:/var/lib/tailscale
       - /dev/net/tun:/dev/net/tun
