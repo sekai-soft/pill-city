@@ -76,7 +76,7 @@ services:
     restart: unless-stopped
     container_name: pill-city-mongodb
     volumes:
-      - mongodb_data:/data/db
+      - ./mongodb:/data/db
     healthcheck:
       test: echo 'db.runCommand("ping").ok' | mongo localhost:27017/test --quiet
       interval: 10s
@@ -112,7 +112,7 @@ services:
     restart: unless-stopped
     container_name: pill-city-redis
     volumes:
-      - redis_data:/data
+      - ./redis:/data
     healthcheck:
       test:
         - CMD
@@ -164,6 +164,4 @@ services:
 
 volumes:
   pill-city-ts:
-  mongodb_data:
-  redis_data:
   resources-ts:
