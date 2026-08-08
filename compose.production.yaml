@@ -100,7 +100,6 @@ services:
       - MONGODB_DB=db
       - BACKUP_FOLDER=pill-city/
       - RETAIN_COUNT=14
-      - DISABLE_CRON=true
     depends_on:
       resources-ts:
         condition: service_healthy
