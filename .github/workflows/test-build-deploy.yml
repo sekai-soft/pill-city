@@ -19,6 +19,34 @@ jobs:
       - name: Run tests
         run: uv run --dev pytest
 
+  build-web:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: web/package-lock.json
+      - name: Install dependencies
+        working-directory: web
+        run: npm ci --legacy-peer-deps
+      - name: Build
+        working-directory: web
+        env:
+          REACT_APP_API_ENDPOINT: https://api.pill.city/api
+        run: npm run build
+      - name: Upload build
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-build
+          path: web/build
+          if-no-files-found: error
+          retention-days: 1
+
   build:
     runs-on: ubuntu-latest
     needs:
@@ -122,6 +150,28 @@ jobs:
           docker buildx imagetools create -t ghcr.io/${{ github.repository }}:${{ github.sha }} \
             ghcr.io/${{ github.repository }}:${{ github.sha }}-amd64 \
             ghcr.io/${{ github.repository }}:${{ github.sha }}-arm64
+
+  deploy-web:
+    runs-on: ubuntu-latest
+    needs: build-web
+    steps:
+      - name: Download build
+        uses: actions/download-artifact@v4
+        with:
+          name: web-build
+          path: web/build
+      - name: Setup Tailscale
+        uses: tailscale/github-action@v2
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ops
+      - name: Publish to eichenwalde
+        run: |
+          rsync -az --delete \
+            -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
+            web/build/ \
+            ubuntu@eichenwalde:/home/ubuntu/pill-city-web/
 
   deploy:
     runs-on: ubuntu-latest
