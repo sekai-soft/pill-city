@@ -89,11 +89,11 @@ services:
     labels:
       - com.centurylinklabs.watchtower.enable=true
   mongodb-backup:
-    image: ternandsparrow/mongodb-backup-s3:1.2.2
+    image: docker pull ghcr.io/sekai-soft/mongodb-backup-s3
     restart: unless-stopped
     container_name: pill-city-mongodb-backup
     env_file:
-      - ./env-backup
+      - $HOME/env-backup
     environment:
       - MONGODB_HOST=pill-city-resources
       - MONGODB_PORT=27017
