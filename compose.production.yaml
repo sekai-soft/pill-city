@@ -97,8 +97,8 @@ services:
     environment:
       - MONGODB_HOST=pill-city-resources
       - MONGODB_PORT=27017
-      - MONGODB_USER=admin
-      - MONGODB_PASS=
+      - MONGODB_DB=db
+      - BACKUP_FOLDER=pill-city/
       - RETAIN_COUNT=14
       - DISABLE_CRON=true
     depends_on:
