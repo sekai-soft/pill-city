@@ -89,7 +89,7 @@ services:
     labels:
       - com.centurylinklabs.watchtower.enable=true
   mongodb-backup:
-    image: docker pull ghcr.io/sekai-soft/mongodb-backup-s3
+    image: ghcr.io/sekai-soft/mongodb-backup-s3
     restart: unless-stopped
     container_name: pill-city-mongodb-backup
     env_file:
